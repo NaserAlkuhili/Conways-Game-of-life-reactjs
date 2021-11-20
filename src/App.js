@@ -1,12 +1,12 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState, useEffect } from 'react';
 import './App.css';
 import produce from "immer";
 import { RiGoogleFill, RiTwitterFill, RiGithubFill, RiLinkedinBoxFill } from "react-icons/ri";
 
 
 function App() {
-  const numOfRows = useRef(50);
-  const numOfCols = useRef(50);
+  const numOfRows = useRef(25);
+  const numOfCols = useRef(25);
 
 
   // creating grid function
@@ -87,61 +87,88 @@ function App() {
     setTimeout(nextGen, speedRef.current);
   }, [])
 
-    
+  //getting the width of the screen.
+  const [width, setWidth] = useState(window.innerWidth);
+  const [height, setHeight] = useState(window.innerWidth);
 
+
+  function handleWindowSizeChange() {
+      setWidth(window.innerWidth);
+      setHeight(window.innerHeight);
+  }
+  useEffect(() => {
+      window.addEventListener('resize', handleWindowSizeChange);
+      return () => {
+          window.removeEventListener('resize', handleWindowSizeChange);
+      }
+  }, []);
+  // console.log(width)
+  
 
 
 
   return (
-    <div>
+    <div className= "main_background">
       <h1 className="title">Conway's Game Of Life</h1>
-      {/* Changing the speed of next generations */}
-      <div style = {{display:'flex', flexDirection:'row',}}>
-        <h1 className = "settings">Change the speed: </h1>
-        <select defaultValue="300" name="speed" id="speed" onChange={(val)=>{
-          speedRef.current = (parseInt(val.target.value))
-            
-          }}>
-          <option value="450">0.5</option>
-          <option value="300">Normal</option>
-          <option value="200">1.5</option>
-          <option value="100">2</option>
-      </select>
+      {/* Socials */}
+      <div className = "socials">
+        <a href="mailto:k4gam3r@gmail.com"> {/* Email */}
+          <RiGoogleFill className="icon" size = {width < 1000 ? 15 : 45}/>
+        </a>
+        <a href="https://twitter.com/NasserAlkuhili"> {/* Twitter */}
+          <RiTwitterFill className="icon" size = {width < 1000 ? 15 : 45}/>
+        </a>
+        <a  href="https://github.com/NaserAlkuhili"> {/* Github */}
+          <RiGithubFill className="icon" size = {width < 1000 ? 15 : 45}/>
+        </a>
+        <a  href="https://www.linkedin.com/in/naser-alkuhili-b10461181/"> {/* Linkedin */}
+          <RiLinkedinBoxFill className="icon" size = {width < 1000 ? 15 : 45}/>
+        </a>
+      </div>
+
+
+      <div style = {{display:'flex', flexDirection:'row', justifyContent:"center", }}>
+        <div className= "settings_container">
+          {/* Changing the speed of next generations */}
+          <h1 className = "settings">Speed:</h1>
+            <select defaultValue="300" name="speed" id="speed" onChange={(val)=>{
+              speedRef.current = (parseInt(val.target.value))
+                
+              }}>
+              <option value="450">0.5</option>
+              <option value="300">Normal</option>
+              <option value="200">1.5</option>
+              <option value="100">2</option>
+          </select>
+      </div>
       {/* changing the number of rows and columns*/}
       {!running && <>
-        <h1 className = "settings">Change the number of rows: </h1>
-        <select defaultValue={numOfRows.current} name="row" id="row" onChange={(val)=>{
-            numOfRows.current = (parseInt(val.target.value))
-            setGen(createGrid())
-            }}>
-            <option value="25">25</option>
-            <option value="50">50</option>
-            <option value="75">75</option>
-            <option value="100">100</option>
-        </select>
-        <h1 className = "settings">Change the number of columns: </h1>
-        <select defaultValue={numOfRows.current} name="column" id="column" onChange={(val)=>{
-            numOfCols.current = (parseInt(val.target.value))
-            setGen(createGrid())
-            }}>
-            <option value="25">25</option>
-            <option value="50">50</option>
-            <option value="75">75</option>
-            <option value="100">100</option>
-        </select>
-
-
+          <div className= "settings_container">
+            <h1 className = "settings">Rows: </h1>
+            <input type="number" defaultValue={numOfRows.current} name="row" min="2" max="100" onChange={(val)=>{
+                numOfRows.current = (parseInt(val.target.value))
+                setGen(createGrid())
+                }}></input>
+          </div>
+          <div className= "settings_container">
+            <h1 className = "settings">Columns: </h1>
+            <input type="number" defaultValue={numOfCols.current} name="row" min="2" max="100" onChange={(val)=>{
+                numOfCols.current = (parseInt(val.target.value))
+                setGen(createGrid())
+                }}></input>
+          </div>
       </>}
-
       </div>
-      <div className="grid"  style = {{gridTemplateColumns: `repeat(${numOfCols.current}, ${1250/numOfCols.current+'px'})`}}>
-        {gen.map((rows, r) => rows.map((column, c) => <div key = {r + "_" + c} className={"cell " + gen[r][c]} style={{height: 650/ {numOfRows}, width:1250/{numOfCols}}} onClick={() => {
+
+      <div className="grid"  style = {{gridTemplateColumns: `repeat(${numOfCols.current}, ${(width)/numOfCols.current+'px'})`}}>
+        {gen.map((rows, r) => rows.map((column, c) => <div key = {r + "_" + c} className={"cell " + gen[r][c]} onClick={() => {
                   const newGen = produce(gen, genCopy => {
                     genCopy[r][c] = gen[r][c] ? false : true;
                   });
                   setGen(newGen);
                 }}/>))}
       </div>
+
       <div className="btn-container">
         <div className="btn" onClick={() => {
           setRunning(!running);
@@ -157,24 +184,6 @@ function App() {
           setRunning(false)
           setGen(createGrid())}}>Clear</div>
       </div>
-
-
-      <footer>
-                    <a href="mailto:k4gam3r@gmail.com"> {/* Email */}
-                        <RiGoogleFill className="icon" size = {45}/>
-                    </a>
-                    <a href="https://twitter.com/NasserAlkuhili"> {/* Twitter */}
-                        <RiTwitterFill className="icon" size = {45}/>
-                    </a>
-                    <a  href="https://github.com/NaserAlkuhili"> {/* Github */}
-                        <RiGithubFill className="icon" size = {45}/>
-                    </a>
-                    <a  href="https://www.linkedin.com/in/naser-alkuhili-b10461181/"> {/* Linkedin */}
-                        <RiLinkedinBoxFill className="icon" size = {45}/>
-                    </a>
-
-
-                </footer>
 
     </div>
   );
