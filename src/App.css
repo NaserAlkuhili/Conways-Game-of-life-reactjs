@@ -79,8 +79,8 @@ body {
 .true {
   background-color: #f130e4;
 }
-.cell:hover {
-  background-color: white;
+.false:hover {
+  background-color: grey;
 }
 .btn-container {
   display: flex;
